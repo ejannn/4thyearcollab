@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Energy Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #dfe9f3, #ffffff);
+            text-align: center;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #0078d7;
+            margin-bottom: 10px;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 220px;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .value {
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .label {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .chart-container {
+            width: 80%;
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>🌡️ Aircon Monitor Dashboard</h1>
+    <div class="cards" id="data"></div>
+
+    <div class="chart-container">
+        <h3>⚡ Voltage Over Time</h3>
+        <canvas id="voltageChart"></canvas>
+    </div>
+
+    <div class="chart-container" style="margin-top: 30px;">
+        <h3>🌡️ Temperature Over Time</h3>
+        <canvas id="tempChart"></canvas>
+    </div>
+
+    <script>
+        const voltageData = [];
+        const tempData = [];
+        const labels = [];
+
+        const voltageChart = new Chart(document.getElementById('voltageChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Voltage (V)',
+                    data: voltageData,
+                    borderColor: '#0078d7',
+                    tension: 0.3,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: { y: { beginAtZero: false } }
+            }
+        });
+
+        const tempChart = new Chart(document.getElementById('tempChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: tempData,
+                    borderColor: '#ff6600',
+                    tension: 0.3,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: { y: { beginAtZero: false } }
+            }
+        });
+
+        async function fetchData() {
+            const res = await fetch('/api/sensor');
+            const data = await res.json();
+
+            const p = data.pzem004t;
+            const d = data.dht11;
+
+            // Update cards
+            document.getElementById('data').innerHTML = `
+                <div class="card"><div class="value">${data.deviceName}</div><div class="label">Device Name</div></div>
+                <div class="card"><div class="value">${p.voltage} V</div><div class="label">Voltage</div></div>
+                <div class="card"><div class="value">${p.current} A</div><div class="label">Current</div></div>
+                <div class="card"><div class="value">${p.power} W</div><div class="label">Power</div></div>
+                <div class="card"><div class="value">${d.temperature} °C</div><div class="label">Temperature</div></div>
+                <div class="card"><div class="value">${d.humidity} %</div><div class="label">Humidity</div></div>
+            `;
+
+            // Update charts
+            const time = new Date().toLocaleTimeString();
+            labels.push(time);
+            voltageData.push(p.voltage);
+            tempData.push(d.temperature);
+
+            if (labels.length > 10) {
+                labels.shift();
+                voltageData.shift();
+                tempData.shift();
+            }
+
+            voltageChart.update();
+            tempChart.update();
+        }
+
+        fetchData();
+        setInterval(fetchData, 2000); // update every 2 seconds
+    </script>
+</body>
+</html>
