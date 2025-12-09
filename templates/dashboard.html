@@ -49,6 +49,33 @@
             color: #888;
         }
 
+        .toggle-container {
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            background: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: #005a9e;
+        }
+
+        .toggle-btn.off {
+            background: #888;
+        }
+
+        .toggle-btn.off:hover {
+            background: #666;
+        }
+
         .chart-container {
             width: 80%;
             max-width: 700px;
@@ -61,7 +88,7 @@
     </style>
 </head>
 <body>
-    <h1>🌡️ Aircon Monitor Dashboard</h1>
+    <h1>🌡️ Energy Monitor Dashboard</h1>
     <div class="cards" id="data"></div>
 
     <div class="chart-container">
@@ -120,14 +147,14 @@
             const p = data.pzem004t;
             const d = data.dht11;
 
-            // Update cards
+            // Update cards with 2 decimal places
             document.getElementById('data').innerHTML = `
                 <div class="card"><div class="value">${data.deviceName}</div><div class="label">Device Name</div></div>
-                <div class="card"><div class="value">${p.voltage} V</div><div class="label">Voltage</div></div>
-                <div class="card"><div class="value">${p.current} A</div><div class="label">Current</div></div>
-                <div class="card"><div class="value">${p.power} W</div><div class="label">Power</div></div>
-                <div class="card"><div class="value">${d.temperature} °C</div><div class="label">Temperature</div></div>
-                <div class="card"><div class="value">${d.humidity} %</div><div class="label">Humidity</div></div>
+                <div class="card"><div class="value">${p.voltage.toFixed(2)} V</div><div class="label">Voltage</div></div>
+                <div class="card"><div class="value">${p.current.toFixed(2)} A</div><div class="label">Current</div></div>
+                <div class="card"><div class="value">${p.power.toFixed(2)} W</div><div class="label">Power</div></div>
+                <div class="card"><div class="value">${d.temperature.toFixed(2)} °C</div><div class="label">Temperature</div></div>
+                <div class="card"><div class="value">${d.humidity.toFixed(2)} %</div><div class="label">Humidity</div></div>
             `;
 
             // Update charts
